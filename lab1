@@ -1,0 +1,181 @@
+/*
+ * File:   newmainXC161.c
+ * Author: local
+ *
+ * Created on April 1, 2026, 12:08 PM
+ */
+
+
+// PIC24FJ128GA010 Configuration Bit Settings
+
+// 'C' source line config statements
+
+// CONFIG2
+#pragma config POSCMOD = XT             // Primary Oscillator Select (XT Oscillator mode selected)
+#pragma config OSCIOFNC = ON            // Primary Oscillator Output Function (OSC2/CLKO/RC15 functions as port I/O (RC15))
+#pragma config FCKSM = CSDCMD           // Clock Switching and Monitor (Clock switching and Fail-Safe Clock Monitor are disabled)
+#pragma config FNOSC = PRI              // Oscillator Select (Primary Oscillator (XT, HS, EC))
+#pragma config IESO = ON                // Internal External Switch Over Mode (IESO mode (Two-Speed Start-up) enabled)
+
+// CONFIG1
+#pragma config WDTPS = PS32768          // Watchdog Timer Postscaler (1:32,768)
+#pragma config FWPSA = PR128            // WDT Prescaler (Prescaler ratio of 1:128)
+#pragma config WINDIS = ON              // Watchdog Timer Window (Standard Watchdog Timer enabled,(Windowed-mode is disabled))
+#pragma config FWDTEN = ON              // Watchdog Timer Enable (Watchdog Timer is enabled)
+#pragma config ICS = PGx2               // Comm Channel Select (Emulator/debugger uses EMUC2/EMUD2)
+#pragma config GWRP = OFF               // General Code Segment Write Protect (Writes to program memory are allowed)
+#pragma config GCP = OFF                // General Code Segment Code Protect (Code protection is disabled)
+#pragma config JTAGEN = OFF             // JTAG Port Enable (JTAG port is disabled)
+
+// #pragma config statements should precede project file includes.
+// Use project enums instead of #define for ON and OFF.
+
+#include <xc.h>
+#include <libpic30.h> // biblioteka do opoznienia 
+
+
+void zad1(void) {
+    unsigned int portValue;
+    AD1PCFG = 0xFFFF;
+    TRISA = 0x0000;
+    
+    while(1) {
+        for (int i = 0; i < 256; i++) {
+            portValue = i;
+            LATA = portValue;
+            
+            __delay32(1000000);
+        }
+    }
+}
+
+
+
+
+void zad2(void) {
+    unsigned int portValue;
+    AD1PCFG = 0xFFFF;
+    TRISA = 0x0000;
+    
+    while(1) {
+    for (int i = 255; i > 0; i--) {
+        portValue = i;
+        LATA = portValue;
+
+        __delay32(1000000);
+    }
+    }
+}
+
+
+
+void zad3(void) {
+    unsigned int gray;
+    AD1PCFG = 0xFFFF;
+    TRISA = 0x0000;
+    
+    
+    while(1) {
+        for(unsigned int i = 0; i < 256; i++) {
+            gray = i ^ (i >> 1);
+            LATA = gray;
+            __delay32(1000000);
+        }
+    }
+}
+
+
+
+void zad4(void) {
+    unsigned int gray;
+    AD1PCFG = 0xFFFF;
+    TRISA = 0x0000;
+    
+    
+    while(1) {
+        for(unsigned int i = 255; i > 0; i--) {
+            gray = i ^ (i >> 1);
+            LATA = gray;
+            __delay32(1000000);
+        }
+    }
+}
+
+
+
+
+
+void zad5(void) {
+    unsigned int bcd;
+
+    AD1PCFG = 0xFFFF;
+    TRISA = 0x0000;
+    LATA = 0x0000;
+
+    while(1) {
+        for(int i = 0; i < 100; i++) {
+            int ones = i % 10;
+            int tens = i / 10;
+
+            bcd = (tens << 4) | ones;
+            LATA = bcd;
+
+            __delay32(1000000);
+        }
+    }
+}
+
+
+
+
+
+
+void zad6(void) {
+    unsigned int bcd;
+
+    AD1PCFG = 0xFFFF;
+    TRISA = 0x0000;
+    LATA = 0x0000;
+
+    while(1) {
+        for(int i = 99; i >= 0; i--) {
+            int ones = i % 10;
+            int tens = i / 10;
+
+            bcd = (tens << 4) | ones;
+            LATA = bcd;
+
+            __delay32(1000000);
+        }
+    }
+}
+
+
+
+void zad7(void) {
+    unsigned int snake;
+
+    AD1PCFG = 0xFFFF;
+    TRISA = 0x0000;
+    LATA = 0x0000;
+
+    while(1) {
+        for(int i = 0; i <= 5; i++) {
+            snake = 0x0007 << i;   
+            LATA = snake;
+            __delay32(1000000);
+        }
+
+        for(int i = 4; i >= 1; i--) {
+            snake = 0x0007 << i;
+            LATA = snake;
+            __delay32(1000000);
+        }
+    }
+}
+
+
+int main(void) {
+    zad7();
+    return 0;
+}
