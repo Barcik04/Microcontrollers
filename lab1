@@ -31,170 +31,184 @@
 // Use project enums instead of #define for ON and OFF.
 
 #include <xc.h>
-#include <libpic30.h> // biblioteka do opoznienia 
+#include <libpic30.h>
 
+int obslugaPrzyciskow(int value) {
+    char prev6, prev13, current6, current13;
 
-void zad1(void) {
-    unsigned int portValue;
-    AD1PCFG = 0xFFFF;
-    TRISA = 0x0000;
-    
-    while(1) {
-        for (int i = 0; i < 256; i++) {
-            portValue = i;
-            LATA = portValue;
-            
-            __delay32(1000000);
+    prev6 = PORTDbits.RD6;
+    prev13 = PORTDbits.RD13;
+
+    __delay32(1000000);
+
+    current6 = PORTDbits.RD6;
+    current13 = PORTDbits.RD13;
+
+    if(current6 - prev6 == 1) {
+        value++;
+        if(value >= 11) {
+            value = 1;
         }
     }
+
+    if(current13 - prev13 == 1) {
+        value--;
+        if(value <= 0) {
+            value = 10;
+        }
+    }
+
+    return value;
 }
 
 
 
-
-void zad2(void) {
-    unsigned int portValue;
-    AD1PCFG = 0xFFFF;
-    TRISA = 0x0000;
-    
-    while(1) {
-    for (int i = 255; i > 0; i--) {
-        portValue = i;
-        LATA = portValue;
-
-        __delay32(1000000);
-    }
-    }
-}
-
-
-
-void zad3(void) {
+int main(void) {
+    int value = 1;
     unsigned int gray;
-    AD1PCFG = 0xFFFF;
-    TRISA = 0x0000;
-    
-    
-    while(1) {
-        for(unsigned int i = 0; i < 256; i++) {
-            gray = i ^ (i >> 1);
-            LATA = gray;
-            __delay32(1000000);
-        }
-    }
-}
-
-
-
-void zad4(void) {
-    unsigned int gray;
-    AD1PCFG = 0xFFFF;
-    TRISA = 0x0000;
-    
-    
-    while(1) {
-        for(unsigned int i = 255; i > 0; i--) {
-            gray = i ^ (i >> 1);
-            LATA = gray;
-            __delay32(1000000);
-        }
-    }
-}
-
-
-
-
-
-void zad5(void) {
     unsigned int bcd;
-
-    AD1PCFG = 0xFFFF;
-    TRISA = 0x0000;
-    LATA = 0x0000;
-
-    while(1) {
-        for(int i = 0; i < 100; i++) {
-            int ones = i % 10;
-            int tens = i / 10;
-
-            bcd = (tens << 4) | ones;
-            LATA = bcd;
-
-            __delay32(1000000);
-        }
-    }
-}
-
-
-
-
-
-
-void zad6(void) {
-    unsigned int bcd;
-
-    AD1PCFG = 0xFFFF;
-    TRISA = 0x0000;
-    LATA = 0x0000;
-
-    while(1) {
-        for(int i = 99; i >= 0; i--) {
-            int ones = i % 10;
-            int tens = i / 10;
-
-            bcd = (tens << 4) | ones;
-            LATA = bcd;
-
-            __delay32(1000000);
-        }
-    }
-}
-
-
-
-void zad7(void) {
     unsigned int snake;
-
-    AD1PCFG = 0xFFFF;
-    TRISA = 0x0000;
-    LATA = 0x0000;
-
-    while(1) {
-        for(int i = 0; i <= 5; i++) {
-            snake = 0x0007 << i;   
-            LATA = snake;
-            __delay32(1000000);
-        }
-
-        for(int i = 4; i >= 1; i--) {
-            snake = 0x0007 << i;
-            LATA = snake;
-            __delay32(1000000);
-        }
-    }
-}
-
-void zad8(void) {
-    unsigned int lfsr = 0x3F; 
+    unsigned int lfsr;
     unsigned int newBit;
 
     AD1PCFG = 0xFFFF;
     TRISA = 0x0000;
+    TRISD = 0xFFFF;
     LATA = 0x0000;
 
     while(1) {
-        newBit = ((lfsr >> 5) ^ (lfsr >> 4) ^ (lfsr >> 3) ^ (lfsr >> 0)) & 1;
+        switch(value) {
+            case 1:
+                for(int i = 0; i < 256; i++) {
+                    LATA = i;
 
-        lfsr = ((lfsr << 1) | newBit) & 0x3F;
+                    int newValue = obslugaPrzyciskow(value);
+                    if(newValue != value) {
+                        value = newValue;
+                        break;
+                    }
+                }
+                break;
 
-        LATA = lfsr;
+            case 2:
+                for(int i = 255; i >= 0; i--) {
+                    LATA = i;
 
-        __delay32(1000000);
+                    int newValue = obslugaPrzyciskow(value);
+                    if(newValue != value) {
+                        value = newValue;
+                        break;
+                    }
+                }
+                break;
+
+            case 3:
+                for(int i = 0; i < 256; i++) {
+                    gray = i ^ (i >> 1);
+                    LATA = gray;
+
+                    int newValue = obslugaPrzyciskow(value);
+                    if(newValue != value) {
+                        value = newValue;
+                        break;
+                    }
+                }
+                break;
+
+            case 4:
+                for(int i = 255; i >= 0; i--) {
+                    gray = i ^ (i >> 1);
+                    LATA = gray;
+
+                    int newValue = obslugaPrzyciskow(value);
+                    if(newValue != value) {
+                        value = newValue;
+                        break;
+                    }
+                }
+                break;
+
+            case 5:
+                for(int i = 0; i < 100; i++) {
+                    int ones = i % 10;
+                    int tens = i / 10;
+                    bcd = (tens << 4) | ones;
+                    LATA = bcd;
+
+                    int newValue = obslugaPrzyciskow(value);
+                    if(newValue != value) {
+                        value = newValue;
+                        break;
+                    }
+                }
+                break;
+
+            case 6:
+                for(int i = 99; i >= 0; i--) {
+                    int ones = i % 10;
+                    int tens = i / 10;
+                    bcd = (tens << 4) | ones;
+                    LATA = bcd;
+
+                    int newValue = obslugaPrzyciskow(value);
+                    if(newValue != value) {
+                        value = newValue;
+                        break;
+                    }
+                }
+                break;
+
+            case 7:
+                for(int i = 0; i <= 5; i++) {
+                    snake = 0x0007 << i;
+                    LATA = snake;
+
+                    int newValue = obslugaPrzyciskow(value);
+                    if(newValue != value) {
+                        value = newValue;
+                        break;
+                    }
+                }
+                if(value != 7) break;
+
+                for(int i = 4; i >= 1; i--) {
+                    snake = 0x0007 << i;
+                    LATA = snake;
+
+                    int newValue = obslugaPrzyciskow(value);
+                    if(newValue != value) {
+                        value = newValue;
+                        break;
+                    }
+                }
+                break;
+
+            case 8:
+                lfsr = 0x3F;
+                while(1) {
+                    newBit = ((lfsr >> 5) ^ (lfsr >> 4) ^ (lfsr >> 3) ^ (lfsr >> 0)) & 1;
+                    lfsr = ((lfsr << 1) | newBit) & 0x3F;
+                    LATA = lfsr;
+
+                    int newValue = obslugaPrzyciskow(value);
+                    if(newValue != value) {
+                        value = newValue;
+                        break;
+                    }
+                }
+                break;
+                
+            case 9:
+                for (int i = 0; i >= 7; i++) {
+                    
+                }
+
+            case 10:
+                LATA = 0x00;
+                value = 1;
+                break;
+        }
     }
-}
 
-
-int main(void) {
-    zad7();
     return 0;
 }
