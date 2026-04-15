@@ -1,3 +1,4 @@
+
 /*
  * File:   newmainXC161.c
  * Author: local
@@ -197,12 +198,40 @@ int main(void) {
                     }
                 }
                 break;
-                
+
             case 9:
-                for (int i = 0; i >= 7; i++) {
-                    
+                int count = 0;
+                int max = 128;
+
+                int prev_val = 0;
+                while (count < 255) {
+                    int newValue = obslugaPrzyciskow(value);
+                    if(newValue != value) {
+                        value = newValue;
+                        break;
+                    }
+
+                    if (prev_val == 0) {
+                        prev_val = 1;
+                        LATA = (count + prev_val);
+
+                    }
+
+                    if (prev_val != max) {
+                        LATA = (count + (prev_val * 2));
+                        prev_val = prev_val * 2;
+                    }
+
+                    if (prev_val >= max) {
+                        max = max / 2;
+                        count += prev_val;
+                        LATA = count;
+                        prev_val = 0;
+                    }
                 }
 
+                break;
+                
             case 10:
                 LATA = 0x00;
                 value = 1;
@@ -212,3 +241,5 @@ int main(void) {
 
     return 0;
 }
+
+
