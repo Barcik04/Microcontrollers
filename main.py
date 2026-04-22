@@ -13,7 +13,7 @@ data = [
 ]
 
 
-
+################### TO JEST NIEUDANY ALGORYTM PROSZE NIE BRAC POD UWAGĘ #######################################
 # rows = [row[:-1] for row in data]
 # last_col = [col[-1] for col in data]
 # columns = list(zip(*rows))
