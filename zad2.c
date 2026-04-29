@@ -1,4 +1,12 @@
 /*
+ * File:   newmainXC16.c
+ * Author: local
+ *
+ * Created on 29 kwietnia 2026, 11:41
+ */
+
+
+/*
  * File:   main.c
  * Author: local
  *
@@ -41,6 +49,27 @@ void init(void){
     TRISA = 0x0000; // port A na wyj?cie - diody
     TRISD |= (1<<6);   // RD6 przycisk na wej?cie
     TRISD |= (1<<13);  // RD13 przycisk na wej?cie
+}
+
+
+unsigned long pobierzOpoznienie(void) {
+    unsigned long adc_value = ADC_Read10bit(ADC_CHANNEL_POTENTIOMETER);
+
+    if(adc_value == 0xFFFF) {
+        return 400000;
+    }
+
+    if(adc_value < 205) {
+        return 80000;    
+    } else if(adc_value < 410) {
+        return 400000;    
+    } else if(adc_value < 615) {
+        return 800000;    
+    } else if(adc_value < 820) {
+        return 1200000;  
+    } else {
+        return 2000000;  
+    }
 }
 
 
@@ -101,10 +130,7 @@ int main(void){
                 snake = 0x0007 << i;
                 LATA = snake;
 
-                adc_value = ADC_Read10bit(ADC_CHANNEL_POTENTIOMETER);
-                if (adc_value != 0xFFFF){
-                    opoznienie = 40000 + (adc_value * 4000);
-                }
+                opoznienie = pobierzOpoznienie();
 
                 __delay32(opoznienie);
 
@@ -120,10 +146,7 @@ int main(void){
                     snake = 0x0007 << i;
                     LATA = snake;
 
-                    adc_value = ADC_Read10bit(ADC_CHANNEL_POTENTIOMETER);
-                    if (adc_value != 0xFFFF){
-                        opoznienie = 40000 + (adc_value * 4000);
-                    }
+                    opoznienie = pobierzOpoznienie();
 
                     __delay32(opoznienie);
 
@@ -135,10 +158,8 @@ int main(void){
                 }
             }
         }else {
-            adc_value = ADC_Read10bit(ADC_CHANNEL_POTENTIOMETER);
-            if (adc_value != 0xFFFF){
-                opoznienie = 40000 + (adc_value * 4000);
-            }
+            opoznienie = pobierzOpoznienie();
+
 
             if (prev_val == 0) {
                 prev_val = 1;
