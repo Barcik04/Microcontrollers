@@ -52,37 +52,37 @@ void init(void){
 }
 
 
+void wylaczAlarm(void) {
+    
+}
+
 
 void wykonajAlarm(void) {
     int i;
-    unsigned long adc_value;
 
     for(i = 0; i < 10; i++) {
-        adc_value = ADC_Read10bit(ADC_CHANNEL_POTENTIOMETER);
-        if(adc_value < 512) {
+
+        if(PORTDbits.RD13 == 0) {
             LATA = 0x0000;
             return;
         }
 
-        LATA = 0x0001;         
+        LATA = 0x0001;
         __delay32(1000000);
 
-        adc_value = ADC_Read10bit(ADC_CHANNEL_POTENTIOMETER);
-        if(adc_value < 512) {
+        if(PORTDbits.RD13 == 0) {
             LATA = 0x0000;
             return;
         }
 
-        LATA = 0x0000;         
+        LATA = 0x0000;
         __delay32(1000000);
     }
 
     LATA = 0x00FF;
 
     while(1) {
-        adc_value = ADC_Read10bit(ADC_CHANNEL_POTENTIOMETER);
-
-        if(adc_value < 512) {
+        if(PORTDbits.RD13 == 0) {
             LATA = 0x0000;
             return;
         }
