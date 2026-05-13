@@ -34,8 +34,9 @@
 #include "string.h"
 #include "stdio.h"
 #include "libpic30.h"
+#include "adc.h"
 
-#define CZAS_START 3
+#define CZAS_START 60
 
 int czasGracz1 = CZAS_START;
 int czasGracz2 = CZAS_START;
@@ -43,12 +44,37 @@ int czasGracz2 = CZAS_START;
 int aktywnyGracz = 0;
 
 void system_init(void) {
-    AD1PCFG = 0xFFFF;
+    ADC_SetConfiguration(ADC_CONFIGURATION_DEFAULT);
+    ADC_ChannelEnable(ADC_CHANNEL_POTENTIOMETER);
 
-    TRISDbits.TRISD6 = 1;     // RD6 jako wejście - gracz 1
-    TRISDbits.TRISD13 = 1;    // RD13 jako wejście - gracz 2
+    TRISDbits.TRISD6 = 1;    
+    TRISDbits.TRISD13 = 1;   
+    TRISDbits.TRISD7 = 1;  
 
     LCD_Initialize();
+}
+
+void potencjometr(void) {
+    unsigned long adc_value;
+    int czas;
+
+    adc_value = ADC_Read10bit(ADC_CHANNEL_POTENTIOMETER);
+
+    if(adc_value <= 50) {
+        czas = 15;      
+    } else if(adc_value < 341) {
+        czas = 60;      
+    } else if(adc_value < 682) {
+        czas = 180;   
+    } else {
+        czas = 300;     
+    }
+
+    if(aktywnyGracz == 0 && czasGracz1 != czas) {
+        czasGracz1 = czas;
+        czasGracz2 = czas;
+        pokazCzasy();
+    }
 }
 
 void pokazCzasy(void) {
@@ -93,35 +119,46 @@ void pokazPrzegrana(int gracz) {
     }
 
     while(1) {
-
+        if(PORTDbits.RD7 == 0) {
+            __asm__ volatile ("reset");
+        }
     }
 }
 
 int main(void) {
     system_init();
 
+    potencjometr();
+
     int licznikTickow = 0;
 
     pokazCzasy();
 
-    while(1) {
+ while(1) {
 
-        if(PORTDbits.RD6 == 0) {
-            aktywnyGracz = 2;
-            pokazCzasy();
+    if(aktywnyGracz == 0) {
+        potencjometr();
+    }
 
-            __delay32(200000);         
-            while(PORTDbits.RD6 == 0);  
-        }
+    if(PORTDbits.RD7 == 0) {
+        __asm__ volatile ("reset");
+    }
 
-        if(PORTDbits.RD13 == 0) {
-            aktywnyGracz = 1;
-            pokazCzasy();
+    if(PORTDbits.RD6 == 0) {
+        aktywnyGracz = 2;
+        pokazCzasy();
 
-            __delay32(200000);           
-            while(PORTDbits.RD13 == 0);
-        }
+        __delay32(200000);
+        while(PORTDbits.RD6 == 0);
+    }
 
+    if(PORTDbits.RD13 == 0) {
+        aktywnyGracz = 1;
+        pokazCzasy();
+
+        __delay32(200000);
+        while(PORTDbits.RD13 == 0);
+    }
 
         __delay32(533333);
 
